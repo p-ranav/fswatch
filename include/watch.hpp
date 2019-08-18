@@ -18,41 +18,27 @@ public:
   // Dictionary that maps files with their respective last_write_time timestmaps
   std::unordered_map<std::string, std::filesystem::file_time_type> file_last_write_time_map;
 
-  std::function<void (const std::string&)> created, modified, erased;
+  std::function<void (const std::string&)> on_created, on_modified, on_erased;
 
   FileWatcher(const std::string& path, std::chrono::duration<int, std::milli> period) :
-    path(path), period(period) {
+    running(true), path(path), period(period), file_last_write_time_map({}) {}
+
+  void start() {
+
+    // Build file map for user-specified path
     for (auto& file: std::filesystem::recursive_directory_iterator(path)) {
       file_last_write_time_map[file.path().string()] = std::filesystem::last_write_time(file);
     }
-  }
 
-  FileWatcher& configure() {
-    return *this;
-  }
-
-  FileWatcher& on_created(const std::function<void (const std::string&)> &action) {
-    created = action;
-    return *this;
-  }
-
-  FileWatcher& on_modified(const std::function<void (const std::string&)> &action) {
-    modified = action;
-    return *this;
-  }
-
-  FileWatcher& on_erased(const std::function<void (const std::string&)> &action) {
-    erased = action;
-    return *this;
-  }
-
-  void start() {
+    // Start watching files in path
     while(running) {
       std::this_thread::sleep_for(period);
       auto it = file_last_write_time_map.begin();
+
+      // Check if the file was erased
       while (it != file_last_write_time_map.end()) {
         if (!std::filesystem::exists(it->first)) {
-          if (erased) erased(it->first);
+          if (on_erased) on_erased(it->first);
           it = file_last_write_time_map.erase(it);
         }
         else {
@@ -65,12 +51,12 @@ public:
         auto current_file_last_write_time = std::filesystem::last_write_time(file);
         if (!contains(file.path().string())) {
           file_last_write_time_map[file.path().string()] = current_file_last_write_time;
-          if (created) created(file.path().string());
+          if (on_created) on_created(file.path().string());
         }
         else {
           if (file_last_write_time_map[file.path().string()] != current_file_last_write_time) {
             file_last_write_time_map[file.path().string()] = current_file_last_write_time;
-            if (modified) modified(file.path().string());
+            if (on_modified) on_modified(file.path().string());
           }
         }
       }
@@ -85,4 +71,4 @@ private:
 
 };
 
-} // namespace watch
+}
