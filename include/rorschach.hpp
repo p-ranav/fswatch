@@ -116,7 +116,7 @@ private:
   std::regex match_path, ignore_path;
   // Is a match/ignore regex provided
   bool match_regex_provided, ignore_regex_provided;
-  // Ignore permission denied errors?
+  // Watcher options
   bool ignore_permission_errors;
   // Callback functions based on file status
   std::function<void(const std::filesystem::path &)> on_path_created,
