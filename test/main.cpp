@@ -2,9 +2,10 @@
 #include <rorschach.hpp>
 
 int main() {
-  auto rorschach = Rorschach("", std::chrono::milliseconds(500));
+  auto rorschach = Rorschach("~", std::chrono::milliseconds(500));
+  rorschach.skip_permission_denied();
   // Only match foo.txt or bar.csv
-  rorschach.match(std::regex("foo.txt|bar.csv"));
+  // rorschach.match(std::regex("foo.txt|bar.csv"));
   // Ignore .ini files
   // rorschach.ignore(std::regex(".*\\.ini$")); 
 

@@ -15,9 +15,9 @@ class Rorschach {
 public:
   Rorschach(const std::string &path,
             std::chrono::duration<int, std::milli> period)
-      : running_(true), path(expand(std::filesystem::path(path))),
+      : running(true), path(expand(std::filesystem::path(path))),
         match_regex_provided(false), ignore_regex_provided(false),
-        period(period), lwt_map_({}) {}
+        ignore_permission_errors(false), period(period), lwt_map({}) {}
 
   void match(const std::regex &match) {
     match_path = match;
@@ -28,6 +28,8 @@ public:
     ignore_path = ignore;
     ignore_regex_provided = true;
   }
+
+  void skip_permission_denied() { ignore_permission_errors = true; }
 
   void on(const FileStatus &event,
           const std::function<void(const std::filesystem::path &)> &action) {
@@ -45,31 +47,32 @@ public:
   }
 
   void watch() {
-
+    std::filesystem::directory_options options;
+    if (ignore_permission_errors)
+      options = std::filesystem::directory_options::skip_permission_denied;
     // Build file map for user-specified path
     for (auto &file : std::filesystem::recursive_directory_iterator(
-             std::filesystem::absolute(path),
-             std::filesystem::directory_options::skip_permission_denied)) {
+             std::filesystem::absolute(path), options)) {
       if (!should_ignore(file)) {
         if (should_watch(file)) {
           std::error_code ec;
-          lwt_map_[file.path().string()] =
+          lwt_map[file.path().string()] =
               std::filesystem::last_write_time(file, ec);
         }
       }
     }
 
     // Start watching files in path
-    while (running_) {
+    while (running) {
       std::this_thread::sleep_for(period);
-      auto it = lwt_map_.begin();
+      auto it = lwt_map.begin();
 
       // Check if the file was erased
-      while (it != lwt_map_.end()) {
+      while (it != lwt_map.end()) {
         if (!std::filesystem::exists(it->first)) {
           if (on_path_erased)
             on_path_erased(std::filesystem::path(it->first));
-          it = lwt_map_.erase(it);
+          it = lwt_map.erase(it);
         } else {
           it++;
         }
@@ -77,8 +80,7 @@ public:
 
       // Check if the file was created or modified
       for (auto &file : std::filesystem::recursive_directory_iterator(
-               std::filesystem::absolute(path),
-               std::filesystem::directory_options::skip_permission_denied)) {
+               std::filesystem::absolute(path), options)) {
         std::string filename = file.path().string();
         // Watch this file only if it is not in the ignore list
         if (!should_ignore(file)) {
@@ -87,13 +89,13 @@ public:
             auto current_file_last_write_time =
                 std::filesystem::last_write_time(file, ec);
             if (!contains(file.path().string())) {
-              lwt_map_[file.path().string()] = current_file_last_write_time;
+              lwt_map[file.path().string()] = current_file_last_write_time;
               if (on_path_created)
                 on_path_created(file.path());
             } else {
-              if (lwt_map_[file.path().string()] !=
+              if (lwt_map[file.path().string()] !=
                   current_file_last_write_time) {
-                lwt_map_[file.path().string()] = current_file_last_write_time;
+                lwt_map[file.path().string()] = current_file_last_write_time;
                 if (on_path_modified)
                   on_path_modified(file.path());
               }
@@ -114,16 +116,18 @@ private:
   std::regex match_path, ignore_path;
   // Is a match/ignore regex provided
   bool match_regex_provided, ignore_regex_provided;
+  // Ignore permission denied errors?
+  bool ignore_permission_errors;
   // Callback functions based on file status
   std::function<void(const std::filesystem::path &)> on_path_created,
       on_path_modified, on_path_erased;
   // Manage status of file watcher
-  bool running_ = true;
+  bool running = true;
   // Dictionary that maps files with their respective last_write_time timestmaps
-  std::unordered_map<std::string, std::filesystem::file_time_type> lwt_map_;
+  std::unordered_map<std::string, std::filesystem::file_time_type> lwt_map;
 
   bool contains(const std::string &file) {
-    return lwt_map_.find(file) != lwt_map_.end();
+    return lwt_map.find(file) != lwt_map.end();
   }
 
   std::filesystem::path expand(std::filesystem::path in) {
