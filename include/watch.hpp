@@ -20,7 +20,7 @@ public:
 
   std::function<void (const std::string&)> on_created, on_modified, on_erased;
 
-  FileWatcher(const std::string& path, std::chrono::duration<int, std::milli> period) :
+  FileWatcher(const std::string& path, std::chrono::duration<int, std::milli> period) : 
     running(true), path(path), period(period), file_last_write_time_map({}) {}
 
   void start() {
