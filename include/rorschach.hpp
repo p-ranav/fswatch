@@ -100,18 +100,17 @@ private:
     return file_last_write_time_map.find(file) != file_last_write_time_map.end();
   }
 
-  std::filesystem::path expand (std::filesystem::path in) {
-    const char * home = getenv ("HOME");
+  std::filesystem::path expand(std::filesystem::path in) {
+    const char * home = getenv("HOME");
     if (!home)
       throw std::invalid_argument ("HOME environment variable not set.");
 
-    std::string s = in.c_str ();
-    if (s[0] == '~') {
-      s = std::string(home) + s.substr (1, s.size () - 1);
-      return std::filesystem::path (s);
-    } else {
-      return in;
+    std::string result = in.c_str();
+    if (result.length() > 0 && result[0] == '~') {
+      result = std::string(home) + result.substr(1, result.size() - 1);
+      return std::filesystem::path(result);
     }
+    return in;
   }
 
 };
