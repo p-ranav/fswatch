@@ -21,7 +21,11 @@ auto watcher = FileWatcher("/opt", std::chrono::milliseconds(500));
 watcher.skip_permission_denied();
 ```
 
-This file watcher will observe /opt every 500 ms and skip permission denied errors. To add callbacks to file-related events, use the `file_watcher.on(...)` method like so:
+This file watcher will observe /opt every 500 ms and skip permission denied errors. 
+
+## Register callbacks to events
+
+To add callbacks to file-related events, use the `file_watcher.on(...)` method like so:
 
 ```cpp
 watcher.on(FileStatus::FILE_CREATED, [](auto &path) {
