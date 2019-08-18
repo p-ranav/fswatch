@@ -29,12 +29,10 @@ public:
   bool should_ignore(const std::filesystem::directory_entry& path) {
       std::string filename = path.path().string();
       std::smatch match;
-      if (!std::regex_search(filename, ignore_path)) {
+      if (!std::regex_search(filename, ignore_path))
         return false;
-      }
-      else {
+      else
         return true;
-      }
   }
 
   void watch() {
