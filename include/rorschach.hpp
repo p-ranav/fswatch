@@ -29,18 +29,28 @@ public:
     ignore_path = ignore_path;
   }
 
+  bool should_ignore(const std::filesystem::directory_entry& path) {
+      std::string filename = path.path().string();
+      std::smatch match;
+      if (!std::regex_search(filename, ignore_path)) {
+        std::cout << "Not ignoring file: " << filename << std::endl;
+        return false;
+      }
+      else {
+        std::cout << "Ignoring file: " << filename << std::endl;
+        return true;
+      }
+  }
+
   void watch() {
 
     // Build file map for user-specified path
     for (auto& file: 
 	   std::filesystem::recursive_directory_iterator(std::filesystem::absolute(path), 
 							 std::filesystem::directory_options::skip_permission_denied)) {
-      std::string filename = file.path().string();
-      std::smatch match;
-      // Watch this file only if it is not in the ignore list
-      if (!std::regex_search(filename, ignore_path)) {
+      if (!should_ignore(file)) {
         std::error_code ec;
-        file_last_write_time_map[filename] = std::filesystem::last_write_time(file, ec);
+        file_last_write_time_map[file.path().string()] = std::filesystem::last_write_time(file, ec);
       }
     }
 
@@ -66,7 +76,7 @@ public:
 							   std::filesystem::directory_options::skip_permission_denied)) {
         std::string filename = file.path().string();
         // Watch this file only if it is not in the ignore list
-        if (!std::regex_search(filename, ignore_path)) {
+        if (!should_ignore(file)) {
           std::error_code ec;
           auto current_file_last_write_time = std::filesystem::last_write_time(file, ec);
           if (!contains(file.path().string())) {
