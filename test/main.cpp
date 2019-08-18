@@ -3,6 +3,7 @@
 
 int main() {
   auto rorschach = Rorschach("", std::chrono::milliseconds(500));
+  rorschach.match(std::regex("foo.txt")); // Only match foo.txt
   rorschach.ignore(std::regex(".*\\.ini$")); // Ignore .ini files
 
   rorschach.on(FileStatus::FILE_CREATED, [](auto &path) {

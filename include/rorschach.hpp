@@ -16,9 +16,17 @@ public:
   Rorschach(const std::string &path,
             std::chrono::duration<int, std::milli> period)
       : running_(true), path(expand(std::filesystem::path(path))),
+        match_regex_provided(false), ignore_regex_provided(false),
         period(period), lwt_map_({}) {}
 
-  void ignore(const std::regex &ignore) { ignore_path = ignore; }
+  void match(const std::regex &match) { 
+    match_path = match; 
+    match_regex_provided = true;
+  }
+  void ignore(const std::regex &ignore) { 
+    ignore_path = ignore;
+    ignore_regex_provided = true; 
+  }
 
   void on(const FileStatus &event,
           const std::function<void(const std::filesystem::path &)> &action) {
@@ -42,9 +50,11 @@ public:
              std::filesystem::absolute(path),
              std::filesystem::directory_options::skip_permission_denied)) {
       if (!should_ignore(file)) {
-        std::error_code ec;
-        lwt_map_[file.path().string()] =
-            std::filesystem::last_write_time(file, ec);
+        if (should_watch(file)) {
+          std::error_code ec;
+          lwt_map_[file.path().string()] =
+              std::filesystem::last_write_time(file, ec);
+        }
       }
     }
 
@@ -71,19 +81,21 @@ public:
         std::string filename = file.path().string();
         // Watch this file only if it is not in the ignore list
         if (!should_ignore(file)) {
-          std::error_code ec;
-          auto current_file_last_write_time =
-              std::filesystem::last_write_time(file, ec);
-          if (!contains(file.path().string())) {
-            lwt_map_[file.path().string()] = current_file_last_write_time;
-            if (on_path_created)
-              on_path_created(file.path());
-          } else {
-            if (lwt_map_[file.path().string()] !=
-                current_file_last_write_time) {
+          if (should_watch(file)) {
+            std::error_code ec;
+            auto current_file_last_write_time =
+                std::filesystem::last_write_time(file, ec);
+            if (!contains(file.path().string())) {
               lwt_map_[file.path().string()] = current_file_last_write_time;
-              if (on_path_modified)
-                on_path_modified(file.path());
+              if (on_path_created)
+                on_path_created(file.path());
+            } else {
+              if (lwt_map_[file.path().string()] !=
+                  current_file_last_write_time) {
+                lwt_map_[file.path().string()] = current_file_last_write_time;
+                if (on_path_modified)
+                  on_path_modified(file.path());
+              }
             }
           }
         }
@@ -98,7 +110,9 @@ private:
   // have changed
   std::chrono::duration<int, std::milli> period;
   // Regex of paths to ignore
-  std::regex ignore_path;
+  std::regex match_path, ignore_path;
+  // Is a match/ignore regex provided
+  bool match_regex_provided, ignore_regex_provided;
   // Callback functions based on file status
   std::function<void(const std::filesystem::path &)> on_path_created,
       on_path_modified, on_path_erased;
@@ -125,10 +139,20 @@ private:
   }
 
   bool should_ignore(const std::filesystem::directory_entry &path) {
+    if (!ignore_regex_provided) return false;
     std::string filename = path.path().string();
     if (!std::regex_search(filename, ignore_path))
       return false;
     else
       return true;
+  }
+
+  bool should_watch(const std::filesystem::directory_entry &path) {
+    if (!match_regex_provided) return true;
+    std::string filename = path.path().string();
+    if (std::regex_search(filename, match_path))
+      return true;
+    else
+      return false;
   }
 };
