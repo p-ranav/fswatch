@@ -20,7 +20,7 @@ public:
   std::function<void (const std::filesystem::path&)> on_path_created, on_path_modified, on_path_erased;
 
   Rorschach(const std::string& path, std::chrono::duration<int, std::milli> period) : 
-    running(true), path(expand(std::filesystem::path(path))), period(period), file_last_write_time_map({}) {}
+    running_(true), path(expand(std::filesystem::path(path))), period(period), lwt_map_({}) {}
 
   void ignore(std::regex ignore_path) {
     ignore_path = ignore_path;
@@ -45,20 +45,20 @@ public:
 							 std::filesystem::directory_options::skip_permission_denied)) {
       if (!should_ignore(file)) {
         std::error_code ec;
-        file_last_write_time_map[file.path().string()] = std::filesystem::last_write_time(file, ec);
+        lwt_map_[file.path().string()] = std::filesystem::last_write_time(file, ec);
       }
     }
 
     // Start watching files in path
-    while(running) {
+    while(running_) {
       std::this_thread::sleep_for(period);
-      auto it = file_last_write_time_map.begin();
+      auto it = lwt_map_.begin();
 
       // Check if the file was erased
-      while (it != file_last_write_time_map.end()) {
+      while (it != lwt_map_.end()) {
         if (!std::filesystem::exists(it->first)) {
           if (on_path_erased) on_path_erased(std::filesystem::path(it->first));
-          it = file_last_write_time_map.erase(it);
+          it = lwt_map_.erase(it);
         }
         else {
           it++;
@@ -75,12 +75,12 @@ public:
           std::error_code ec;
           auto current_file_last_write_time = std::filesystem::last_write_time(file, ec);
           if (!contains(file.path().string())) {
-            file_last_write_time_map[file.path().string()] = current_file_last_write_time;
+            lwt_map_[file.path().string()] = current_file_last_write_time;
             if (on_path_created) on_path_created(file.path());
           }
           else {
-            if (file_last_write_time_map[file.path().string()] != current_file_last_write_time) {
-              file_last_write_time_map[file.path().string()] = current_file_last_write_time;
+            if (lwt_map_[file.path().string()] != current_file_last_write_time) {
+              lwt_map_[file.path().string()] = current_file_last_write_time;
               if (on_path_modified) on_path_modified(file.path());
             }
           }
@@ -92,12 +92,12 @@ public:
 
 private:
   // Manage status of file watcher
-  bool running = true;
+  bool running_ = true;
   // Dictionary that maps files with their respective last_write_time timestmaps
-  std::unordered_map<std::string, std::filesystem::file_time_type> file_last_write_time_map;
+  std::unordered_map<std::string, std::filesystem::file_time_type> lwt_map_;
 
   bool contains(const std::string& file) {
-    return file_last_write_time_map.find(file) != file_last_write_time_map.end();
+    return lwt_map_.find(file) != lwt_map_.end();
   }
 
   std::filesystem::path expand(std::filesystem::path in) {
