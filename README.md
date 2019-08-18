@@ -14,10 +14,10 @@ Simply include file_watcher.hpp and you're good to go.
 #include <file_watcher.hpp>
 ```
 
-To start watching files, create a FileWatcher. This file watcher will check every 500 ms and skips permission denied errors. 
+To start watching files, create a FileWatcher. This file watcher will observe /opt every 500 ms and skip permission denied errors. 
 
 ```cpp
-auto watcher = FileWatcher("", std::chrono::milliseconds(500));
+auto watcher = FileWatcher("/opt", std::chrono::milliseconds(500));
 watcher.skip_permission_denied();
 ```
 
