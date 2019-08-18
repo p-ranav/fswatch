@@ -10,7 +10,6 @@
 
 class Rorschach {
 public:
-  bool running = true;
   // Root directory of the file watcher
   std::filesystem::path path;
   // Periodicity of the file watcher, i.e., how often it checks to see if files have changed
@@ -92,6 +91,8 @@ public:
   }
 
 private:
+  // Manage status of file watcher
+  bool running = true;
   // Dictionary that maps files with their respective last_write_time timestmaps
   std::unordered_map<std::string, std::filesystem::file_time_type> file_last_write_time_map;
 
