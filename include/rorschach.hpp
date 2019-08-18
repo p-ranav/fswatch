@@ -12,7 +12,7 @@ class Rorschach {
 public:
   bool running = true;
   // Root directory of the file watcher
-  std::string path;
+  std::filesystem::path path;
   // Periodicity of the file watcher, i.e., how often it checks to see if files have changed
   std::chrono::duration<int, std::milli> period;
   // Dictionary that maps files with their respective last_write_time timestmaps
@@ -20,21 +20,21 @@ public:
   // Regex of paths to ignore
   std::regex ignore_path;
 
-  std::function<void (const std::string&)> on_path_created, on_path_modified, on_path_erased;
+  std::function<void (const std::filesystem::path&)> on_path_created, on_path_modified, on_path_erased;
 
   Rorschach(const std::string& path, std::chrono::duration<int, std::milli> period) : 
-    running(true), path(path), period(period), file_last_write_time_map({}) {}
+    running(true), path(expand(std::filesystem::path(path))), period(period), file_last_write_time_map({}) {}
 
-  void ignore(const std::regex& ignore_path) {
-    ignore_path = std::regex(ignore_path);
+  void ignore(std::regex ignore_path) {
+    ignore_path = ignore_path;
   }
 
   void watch() {
 
     // Build file map for user-specified path
     for (auto& file: 
-          std::filesystem::recursive_directory_iterator(std::filesystem::absolute(path), 
-                                                        std::filesystem::directory_options::skip_permission_denied)) {
+	   std::filesystem::recursive_directory_iterator(std::filesystem::absolute(path), 
+							 std::filesystem::directory_options::skip_permission_denied)) {
       std::string filename = file.path().string();
       std::smatch match;
       // Watch this file only if it is not in the ignore list
@@ -52,7 +52,7 @@ public:
       // Check if the file was erased
       while (it != file_last_write_time_map.end()) {
         if (!std::filesystem::exists(it->first)) {
-          if (on_path_erased) on_path_erased(it->first);
+          if (on_path_erased) on_path_erased(std::filesystem::path(it->first));
           it = file_last_write_time_map.erase(it);
         }
         else {
@@ -62,8 +62,8 @@ public:
 
       // Check if the file was created or modified
       for (auto& file: 
-            std::filesystem::recursive_directory_iterator(std::filesystem::absolute(path), 
-              std::filesystem::directory_options::skip_permission_denied)) {
+	     std::filesystem::recursive_directory_iterator(std::filesystem::absolute(path), 
+							   std::filesystem::directory_options::skip_permission_denied)) {
         std::string filename = file.path().string();
         // Watch this file only if it is not in the ignore list
         if (!std::regex_search(filename, ignore_path)) {
@@ -71,12 +71,12 @@ public:
           auto current_file_last_write_time = std::filesystem::last_write_time(file, ec);
           if (!contains(file.path().string())) {
             file_last_write_time_map[file.path().string()] = current_file_last_write_time;
-            if (on_path_created) on_path_created(file.path().string());
+            if (on_path_created) on_path_created(file.path());
           }
           else {
             if (file_last_write_time_map[file.path().string()] != current_file_last_write_time) {
               file_last_write_time_map[file.path().string()] = current_file_last_write_time;
-              if (on_path_modified) on_path_modified(file.path().string());
+              if (on_path_modified) on_path_modified(file.path());
             }
           }
         }
@@ -88,6 +88,22 @@ public:
 private:
   bool contains(const std::string& file) {
     return file_last_write_time_map.find(file) != file_last_write_time_map.end();
+  }
+
+  std::filesystem::path expand (std::filesystem::path in) {
+    const char * home = getenv ("HOME");
+    if (home == NULL) {
+      std::cerr << "error: HOME variable not set." << std::endl;
+      throw std::invalid_argument ("error: HOME environment variable not set.");
+    }
+
+    std::string s = in.c_str ();
+    if (s[0] == '~') {
+      s = std::string(home) + s.substr (1, s.size () - 1);
+      return std::filesystem::path (s);
+    } else {
+      return in;
+    }
   }
 
 };
