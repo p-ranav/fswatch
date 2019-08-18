@@ -11,9 +11,9 @@
 
 enum class FileStatus { FILE_CREATED, FILE_MODIFIED, FILE_ERASED };
 
-class Rorschach {
+class FileWatcher {
 public:
-  Rorschach(const std::string &path,
+  FileWatcher(const std::string &path,
             std::chrono::duration<int, std::milli> period)
       : running(true), path(expand(std::filesystem::path(path))),
         match_regex_provided(false), ignore_regex_provided(false),
@@ -46,7 +46,7 @@ public:
     }
   }
 
-  void watch() {
+  void start() {
     std::filesystem::directory_options options;
     if (ignore_permission_errors)
       options = std::filesystem::directory_options::skip_permission_denied;

@@ -1,29 +1,29 @@
 #include <iostream>
-#include <rorschach.hpp>
+#include <watcher.hpp>
 
 int main() {
-  auto rorschach = Rorschach("", std::chrono::milliseconds(500));
-  rorschach.skip_permission_denied();
-  rorschach.match(std::regex("bar.txt"));
+  auto watcher = FileWatcher("", std::chrono::milliseconds(500));
+  watcher.skip_permission_denied();
+  watcher.match(std::regex("bar.txt"));
   // Only match foo.txt or bar.csv
-  // rorschach.match(std::regex("foo.txt|bar.csv"));
+  // watcher.match(std::regex("foo.txt|bar.csv"));
   // Ignore .ini files
-  // rorschach.ignore(std::regex(".*\\.ini$")); 
+  // watcher.ignore(std::regex(".*\\.ini$")); 
 
-  rorschach.on(FileStatus::FILE_CREATED, [](auto &path) {
+  watcher.on(FileStatus::FILE_CREATED, [](auto &path) {
     std::cout << "Path created: " << path << std::endl;
   });
 
-  rorschach.on(FileStatus::FILE_MODIFIED, [](auto &path) {
+  watcher.on(FileStatus::FILE_MODIFIED, [](auto &path) {
     std::cout << "Path modified: " << path << std::endl;
   });
 
-  rorschach.on(FileStatus::FILE_ERASED, [](auto &path) {
+  watcher.on(FileStatus::FILE_ERASED, [](auto &path) {
     std::cout << "Path erased: " << path << std::endl;
   });
 
   try {
-    rorschach.watch();
+    watcher.start();
   } catch (std::filesystem::filesystem_error &error) {
     std::cout << error.what() << std::endl;
   }
