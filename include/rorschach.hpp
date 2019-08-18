@@ -15,11 +15,9 @@ public:
   std::filesystem::path path;
   // Periodicity of the file watcher, i.e., how often it checks to see if files have changed
   std::chrono::duration<int, std::milli> period;
-  // Dictionary that maps files with their respective last_write_time timestmaps
-  std::unordered_map<std::string, std::filesystem::file_time_type> file_last_write_time_map;
   // Regex of paths to ignore
   std::regex ignore_path;
-
+  // Callback functions based on file status
   std::function<void (const std::filesystem::path&)> on_path_created, on_path_modified, on_path_erased;
 
   Rorschach(const std::string& path, std::chrono::duration<int, std::milli> period) : 
@@ -33,11 +31,9 @@ public:
       std::string filename = path.path().string();
       std::smatch match;
       if (!std::regex_search(filename, ignore_path)) {
-        std::cout << "Not ignoring file: " << filename << std::endl;
         return false;
       }
       else {
-        std::cout << "Ignoring file: " << filename << std::endl;
         return true;
       }
   }
@@ -96,6 +92,9 @@ public:
   }
 
 private:
+  // Dictionary that maps files with their respective last_write_time timestmaps
+  std::unordered_map<std::string, std::filesystem::file_time_type> file_last_write_time_map;
+
   bool contains(const std::string& file) {
     return file_last_write_time_map.find(file) != file_last_write_time_map.end();
   }
