@@ -102,10 +102,8 @@ private:
 
   std::filesystem::path expand (std::filesystem::path in) {
     const char * home = getenv ("HOME");
-    if (home == NULL) {
-      std::cerr << "error: HOME variable not set." << std::endl;
-      throw std::invalid_argument ("error: HOME environment variable not set.");
-    }
+    if (!home)
+      throw std::invalid_argument ("HOME environment variable not set.");
 
     std::string s = in.c_str ();
     if (s[0] == '~') {
