@@ -1,5 +1,5 @@
 #include <iostream>
-#include <watcher.hpp>
+#include <file_watcher.hpp>
 
 int main() {
   auto watcher = FileWatcher("", std::chrono::milliseconds(500));
