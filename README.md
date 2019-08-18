@@ -3,7 +3,7 @@
 ## Highlights
 
 * Single header file
-* Requires C++17 and std::filesystem
+* Requires C++17 and `std::filesystem`
 * MIT License
 
 ## Quick Start
