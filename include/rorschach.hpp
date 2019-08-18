@@ -22,13 +22,19 @@ public:
 
   std::function<void (const std::string&)> on_path_created, on_path_modified, on_path_erased;
 
-  Rorschach(const std::string& path, std::chrono::duration<int, std::milli> period, const std::regex& ignore_path) : 
-    running(true), path(path), period(period), ignore_path(ignore_path), file_last_write_time_map({}) {}
+  Rorschach(const std::string& path, std::chrono::duration<int, std::milli> period) : 
+    running(true), path(path), period(period), file_last_write_time_map({}) {}
+
+  void ignore(const std::regex& ignore_path) {
+    ignore_path = std::regex(ignore_path);
+  }
 
   void watch() {
 
     // Build file map for user-specified path
-    for (auto& file: std::filesystem::recursive_directory_iterator(path, std::filesystem::directory_options::skip_permission_denied)) {
+    for (auto& file: 
+          std::filesystem::recursive_directory_iterator(std::filesystem::absolute(path), 
+                                                        std::filesystem::directory_options::skip_permission_denied)) {
       std::string filename = file.path().string();
       std::smatch match;
       // Watch this file only if it is not in the ignore list
@@ -55,7 +61,9 @@ public:
       }
 
       // Check if the file was created or modified
-      for (auto& file : std::filesystem::recursive_directory_iterator(path, std::filesystem::directory_options::skip_permission_denied)) {
+      for (auto& file: 
+            std::filesystem::recursive_directory_iterator(std::filesystem::absolute(path), 
+              std::filesystem::directory_options::skip_permission_denied)) {
         std::string filename = file.path().string();
         // Watch this file only if it is not in the ignore list
         if (!std::regex_search(filename, ignore_path)) {
