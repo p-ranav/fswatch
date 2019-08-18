@@ -22,8 +22,8 @@ public:
   Rorschach(const std::string& path, std::chrono::duration<int, std::milli> period) : 
     running_(true), path(expand(std::filesystem::path(path))), period(period), lwt_map_({}) {}
 
-  void ignore(std::regex ignore_path) {
-    ignore_path = ignore_path;
+  void ignore(const std::regex& ignore) {
+    ignore_path = ignore;
   }
 
   void watch() {
@@ -104,7 +104,6 @@ private:
 
   bool should_ignore(const std::filesystem::directory_entry& path) {
     std::string filename = path.path().string();
-    std::smatch match;
     if (!std::regex_search(filename, ignore_path))
       return false;
     else

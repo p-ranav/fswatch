@@ -2,7 +2,8 @@
 #include <iostream>
 
 int main() {
-  auto rorschach = Rorschach(".", std::chrono::milliseconds(500));
+  auto rorschach = Rorschach("", std::chrono::milliseconds(500));
+  rorschach.ignore(std::regex(".*\\.ini$")); // Ignore .ini files
 
   rorschach.on_path_created = [](auto& path) { 
     std::cout << "Path created: " << path << std::endl; 
