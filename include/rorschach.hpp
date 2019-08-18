@@ -30,11 +30,12 @@ public:
     // Build file map for user-specified path
     for (auto& file: std::filesystem::recursive_directory_iterator(path, std::filesystem::directory_options::skip_permission_denied)) {
       std::string filename = file.path().string();
-      file_last_write_time_map[file.path().string()] = std::filesystem::last_write_time(file);
-       std::smatch match;
+      std::smatch match;
       // Watch this file only if it is not in the ignore list
-      if (std::regex_search(filename, match, ignore_path) && match.size() == 0)
-        file_last_write_time_map[filename] = std::filesystem::last_write_time(file);
+      if (!std::regex_search(filename, ignore_path)) {
+        std::error_code ec;
+        file_last_write_time_map[filename] = std::filesystem::last_write_time(file, ec);
+      }
     }
 
     // Start watching files in path
@@ -54,12 +55,10 @@ public:
       }
 
       // Check if the file was created or modified
-      for (auto& file : std::filesystem::recursive_directory_iterator(path)) {
-
+      for (auto& file : std::filesystem::recursive_directory_iterator(path, std::filesystem::directory_options::skip_permission_denied)) {
         std::string filename = file.path().string();
-        std::smatch match;
         // Watch this file only if it is not in the ignore list
-        if (std::regex_search(filename, match, ignore_path) && match.size() == 0) {
+        if (!std::regex_search(filename, ignore_path)) {
           std::error_code ec;
           auto current_file_last_write_time = std::filesystem::last_write_time(file, ec);
           if (!contains(file.path().string())) {
