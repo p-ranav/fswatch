@@ -28,15 +28,15 @@ This file watcher will observe /opt every 500 ms and skip permission denied erro
 To add callbacks to file-related events, use the `file_watcher.on(...)` method like so:
 
 ```cpp
-watcher.on(FileStatus::FILE_CREATED, [](auto &path) {
+watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
   std::cout << "Path created: " << path << std::endl;
 });
 
-watcher.on(FileStatus::FILE_MODIFIED, [](auto &path) {
+watcher.on(FileWatcher::Event::FILE_MODIFIED, [](auto &path) {
   std::cout << "Path modified: " << path << std::endl;
 });
 
-watcher.on(FileStatus::FILE_ERASED, [](auto &path) {
+watcher.on(FileWatcher::Event::FILE_ERASED, [](auto &path) {
   std::cout << "Path erased: " << path << std::endl;
 });
 ```
