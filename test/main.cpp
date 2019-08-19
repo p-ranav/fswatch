@@ -10,15 +10,15 @@ int main() {
   // Ignore .ini files
   // watcher.ignore(std::regex(".*\\.ini$")); 
 
-  watcher.on(FileStatus::FILE_CREATED, [](auto &path) {
+  watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
     std::cout << "Path created: " << path << std::endl;
   });
 
-  watcher.on(FileStatus::FILE_MODIFIED, [](auto &path) {
+  watcher.on(FileWatcher::Event::FILE_MODIFIED, [](auto &path) {
     std::cout << "Path modified: " << path << std::endl;
   });
 
-  watcher.on(FileStatus::FILE_ERASED, [](auto &path) {
+  watcher.on(FileWatcher::Event::FILE_ERASED, [](auto &path) {
     std::cout << "Path erased: " << path << std::endl;
   });
 

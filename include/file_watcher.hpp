@@ -9,10 +9,11 @@
 #include <unordered_map>
 #include <variant>
 
-enum class FileStatus { FILE_CREATED, FILE_MODIFIED, FILE_ERASED };
-
 class FileWatcher {
 public:
+
+  enum class Event { FILE_CREATED, FILE_MODIFIED, FILE_ERASED };
+  
   FileWatcher(const std::string &path,
             std::chrono::duration<int, std::milli> period)
       : running(true), path(expand(std::filesystem::path(path))),
@@ -31,16 +32,16 @@ public:
 
   void skip_permission_denied() { ignore_permission_errors = true; }
 
-  void on(const FileStatus &event,
+  void on(const Event &event,
           const std::function<void(const std::filesystem::path &)> &action) {
     switch (event) {
-    case FileStatus::FILE_CREATED:
+    case Event::FILE_CREATED:
       on_path_created = action;
       break;
-    case FileStatus::FILE_MODIFIED:
+    case Event::FILE_MODIFIED:
       on_path_modified = action;
       break;
-    case FileStatus::FILE_ERASED:
+    case Event::FILE_ERASED:
       on_path_erased = action;
       break;
     }
