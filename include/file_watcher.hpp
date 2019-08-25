@@ -253,7 +253,7 @@ public:
     close(fd);
     fflush(stdout);
   }
-#endif 
+#endif
 
 private:
   // Root directory of the file watcher
