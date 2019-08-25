@@ -18,10 +18,9 @@ To start watching files, create a FileWatcher.
 
 ```cpp
 auto watcher = FileWatcher("/opt", std::chrono::milliseconds(500));
-watcher.skip_permission_denied();
 ```
 
-This file watcher will observe /opt every 500 ms and skip permission denied errors. 
+This file watcher will observe /opt every 500 ms.
 
 ## Register callbacks to events
 
