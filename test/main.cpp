@@ -2,14 +2,15 @@
 #include <iostream>
 
 int main() {
-  auto watcher = FileWatcher("/opt");
+  auto watcher = FileWatcher("");
 
   watcher.on(FileWatcher::Event::DIR_CREATED, [](auto &path) {
     std::cout << "Directory created: " << path << std::endl;
   });
 
-  watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
+  watcher.on(FileWatcher::Event::FILE_CREATED, [&](auto &path) {
     std::cout << "File created: " << path << std::endl;
+    watcher.stop();
   });
 
   watcher.on(FileWatcher::Event::FILE_MODIFIED, [](auto &path) {

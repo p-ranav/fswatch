@@ -104,8 +104,13 @@ public:
     DIR_ERASED
   };
 
-  FileWatcher(const std::string &path)
-      : path(expand(std::filesystem::absolute(std::filesystem::path(path)))) {}
+  FileWatcher(const std::string &directory)
+      : path(expand(std::filesystem::path(directory))) {
+    if (directory.length() == 0) {
+      path = std::filesystem::current_path();
+    }
+    std::cout << "Watching " << path << std::endl;
+  }
 
   void on(const Event &event,
           const std::function<void(const std::filesystem::path &)> &action) {
@@ -113,6 +118,10 @@ public:
   }
 
 #ifdef __linux__
+  void stop() {
+    run = false;
+  }
+
   void start() {
     // std::map used to keep track of wd (watch descriptors) and directory names
     // As directory creation events arrive, they are added to the Watch map.
