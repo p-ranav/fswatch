@@ -39,29 +39,3 @@ watcher.on(FileWatcher::Event::FILE_ERASED, [](auto &path) {
   std::cout << "Path erased: " << path << std::endl;
 });
 ```
-
-## Watch specific files
-
-Maybe you don't want to watch every file in a directory but just specific files. You can use ```file_watcher.watch(...)``` and provide a regex of all files you want to watch. 
-
-Let's say you only care about `foo.txt` in your home directory. You can configure the file_watcher to only watch this one file like so:
-
-```cpp
-auto watcher = FileWatcher("~", std::chrono::milliseconds(500));
-watcher.skip_permission_denied();
-watcher.match(std::regex("foo.txt"));
-```
-
-If you also want to watch `bar.log`, you can update the regex like so:
-
-```cpp
-watcher.match(std::regex("foo.txt|bar.log");
-```
-
-## Ignore file formats
-
-Let's say you don't want to watch certain file formats, e.g., `.log`. You can use `file_watcher.ignore(...)` and provide a regex of all files you want to ignore. 
-
-```cpp
-watcher.ignore(std::regex(".*\\.log$")); // Ignore all log files
-```

@@ -116,16 +116,6 @@ public:
         match_regex_provided(false), ignore_regex_provided(false),
         period(period) {}
 
-  void match(const std::regex &match) {
-    match_path = match;
-    match_regex_provided = true;
-  }
-
-  void ignore(const std::regex &ignore) {
-    ignore_path = ignore;
-    ignore_regex_provided = true;
-  }
-
   void on(const Event &event,
           const std::function<void(const std::filesystem::path &)> &action) {
     callbacks[event] = action;
@@ -292,26 +282,6 @@ private:
       return std::filesystem::path(result);
     }
     return in;
-  }
-
-  bool should_ignore(const std::filesystem::directory_entry &path) {
-    if (!ignore_regex_provided)
-      return false;
-    std::string filename = path.path().string();
-    if (!std::regex_search(filename, ignore_path))
-      return false;
-    else
-      return true;
-  }
-
-  bool should_watch(const std::filesystem::directory_entry &path) {
-    if (!match_regex_provided)
-      return true;
-    std::string filename = path.path().string();
-    if (std::regex_search(filename, match_path))
-      return true;
-    else
-      return false;
   }
 
   bool is_callback_registered(const Event& event) {
