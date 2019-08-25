@@ -29,12 +29,5 @@ To add callbacks to events, use the `file_watcher.on(...)` method like so:
 watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
   std::cout << "Path created: " << path << std::endl;
 });
-
-watcher.on(FileWatcher::Event::FILE_MODIFIED, [](auto &path) {
-  std::cout << "Path modified: " << path << std::endl;
-});
-
-watcher.on(FileWatcher::Event::FILE_ERASED, [](auto &path) {
-  std::cout << "Path erased: " << path << std::endl;
-});
 ```
+This file watcher supports `FILE_CREATED`, `FILE_MODIFIED`, `FILE_ERASED`, `DIR_CREATED`, `DIR_MODIFIED`, and `DIR_ERASED`.
