@@ -214,28 +214,40 @@ public:
               wd = inotify_add_watch(fd, new_dir.c_str(), WATCH_FLAGS);
               watch.insert(event->wd, event->name, wd);
               total_dir_events++;
-              printf("New directory %s created.\n", new_dir.c_str());
+              if (is_callback_registered(Event::DIR_CREATED)) {
+                callbacks[Event::DIR_CREATED](std::filesystem::path(current_dir + "/" + event->name));
+              }
             } else {
               total_file_events++;
-              printf("New file %s/%s created.\n", current_dir.c_str(),
-                     event->name);
+              if (is_callback_registered(Event::FILE_CREATED)) {
+                callbacks[Event::FILE_CREATED](std::filesystem::path(current_dir + "/" + event->name));
+              }
             }
           } else if (event->mask & IN_MODIFY) {
-            if (event->mask & IN_ISDIR)
-              printf("The directory %s was modified.\n", event->name);
-            else
-              printf("The file %s was modified with WD %d\n", event->name,
-                     event->wd);
+            if (event->mask & IN_ISDIR) {
+              if (is_callback_registered(Event::DIR_MODIFIED)) {
+                callbacks[Event::DIR_MODIFIED](std::filesystem::path(current_dir + "/" + event->name));
+              }
+            }
+            else {
+              if (is_callback_registered(Event::FILE_MODIFIED)) {
+                callbacks[Event::FILE_MODIFIED](std::filesystem::path(current_dir + "/" + event->name));
+              }              
+            }
           } else if (event->mask & IN_DELETE) {
             if (event->mask & IN_ISDIR) {
               new_dir = watch.erase(event->wd, event->name, &wd);
               inotify_rm_watch(fd, wd);
               total_dir_events--;
-              printf("Directory %s deleted.\n", new_dir.c_str());
+              if (is_callback_registered(Event::DIR_ERASED)) {
+                callbacks[Event::DIR_ERASED](std::filesystem::path(current_dir + "/" + event->name));
+              }
             } else {
               current_dir = watch.get(event->wd);
               total_file_events--;
-              printf("File %s/%s deleted.\n", current_dir.c_str(), event->name);
+              if (is_callback_registered(Event::FILE_ERASED)) {
+                callbacks[Event::FILE_ERASED](std::filesystem::path(current_dir + "/" + event->name));
+              }
             }
           }
         }
@@ -300,5 +312,9 @@ private:
       return true;
     else
       return false;
+  }
+
+  bool is_callback_registered(const Event& event) {
+    return (callbacks.find(event) != callbacks.end());
   }
 };

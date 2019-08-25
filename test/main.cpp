@@ -7,18 +7,22 @@ int main() {
   // Only match foo.txt or bar.csv
   // watcher.match(std::regex("foo.txt|bar.csv"));
   // Ignore .ini files
-  // watcher.ignore(std::regex(".*\\.ini$")); 
+  // watcher.ignore(std::regex(".*\\.ini$"));
+
+  watcher.on(FileWatcher::Event::DIR_CREATED, [](auto& path) {
+    std::cout << "Directory created: " << path << std::endl;
+  });
 
   watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
-    std::cout << "Path created: " << path << std::endl;
+    std::cout << "File created: " << path << std::endl;
   });
 
   watcher.on(FileWatcher::Event::FILE_MODIFIED, [](auto &path) {
-    std::cout << "Path modified: " << path << std::endl;
+    std::cout << "File modified: " << path << std::endl;
   });
 
   watcher.on(FileWatcher::Event::FILE_ERASED, [](auto &path) {
-    std::cout << "Path erased: " << path << std::endl;
+    std::cout << "File erased: " << path << std::endl;
   });
 
   try {
