@@ -1,15 +1,10 @@
-#include <iostream>
 #include <file_watcher.hpp>
+#include <iostream>
 
 int main() {
-  auto watcher = FileWatcher("/home/pranav", std::chrono::milliseconds(500));
-  // watcher.match(std::regex("bar.txt"));
-  // Only match foo.txt or bar.csv
-  // watcher.match(std::regex("foo.txt|bar.csv"));
-  // Ignore .ini files
-  // watcher.ignore(std::regex(".*\\.ini$"));
+  auto watcher = FileWatcher("/opt");
 
-  watcher.on(FileWatcher::Event::DIR_CREATED, [](auto& path) {
+  watcher.on(FileWatcher::Event::DIR_CREATED, [](auto &path) {
     std::cout << "Directory created: " << path << std::endl;
   });
 

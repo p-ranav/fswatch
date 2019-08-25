@@ -110,11 +110,8 @@ public:
     DIR_ERASED
   };
 
-  FileWatcher(const std::string &path,
-              std::chrono::duration<int, std::milli> period)
-      : path(expand(std::filesystem::absolute(std::filesystem::path(path)))),
-        match_regex_provided(false), ignore_regex_provided(false),
-        period(period) {}
+  FileWatcher(const std::string &path)
+      : path(expand(std::filesystem::absolute(std::filesystem::path(path)))) {}
 
   void on(const Event &event,
           const std::function<void(const std::filesystem::path &)> &action) {
@@ -205,24 +202,27 @@ public:
               watch.insert(event->wd, event->name, wd);
               total_dir_events++;
               if (is_callback_registered(Event::DIR_CREATED)) {
-                callbacks[Event::DIR_CREATED](std::filesystem::path(current_dir + "/" + event->name));
+                callbacks[Event::DIR_CREATED](
+                    std::filesystem::path(current_dir + "/" + event->name));
               }
             } else {
               total_file_events++;
               if (is_callback_registered(Event::FILE_CREATED)) {
-                callbacks[Event::FILE_CREATED](std::filesystem::path(current_dir + "/" + event->name));
+                callbacks[Event::FILE_CREATED](
+                    std::filesystem::path(current_dir + "/" + event->name));
               }
             }
           } else if (event->mask & IN_MODIFY) {
             if (event->mask & IN_ISDIR) {
               if (is_callback_registered(Event::DIR_MODIFIED)) {
-                callbacks[Event::DIR_MODIFIED](std::filesystem::path(current_dir + "/" + event->name));
+                callbacks[Event::DIR_MODIFIED](
+                    std::filesystem::path(current_dir + "/" + event->name));
               }
-            }
-            else {
+            } else {
               if (is_callback_registered(Event::FILE_MODIFIED)) {
-                callbacks[Event::FILE_MODIFIED](std::filesystem::path(current_dir + "/" + event->name));
-              }              
+                callbacks[Event::FILE_MODIFIED](
+                    std::filesystem::path(current_dir + "/" + event->name));
+              }
             }
           } else if (event->mask & IN_DELETE) {
             if (event->mask & IN_ISDIR) {
@@ -230,13 +230,15 @@ public:
               inotify_rm_watch(fd, wd);
               total_dir_events--;
               if (is_callback_registered(Event::DIR_ERASED)) {
-                callbacks[Event::DIR_ERASED](std::filesystem::path(current_dir + "/" + event->name));
+                callbacks[Event::DIR_ERASED](
+                    std::filesystem::path(current_dir + "/" + event->name));
               }
             } else {
               current_dir = watch.get(event->wd);
               total_file_events--;
               if (is_callback_registered(Event::FILE_ERASED)) {
-                callbacks[Event::FILE_ERASED](std::filesystem::path(current_dir + "/" + event->name));
+                callbacks[Event::FILE_ERASED](
+                    std::filesystem::path(current_dir + "/" + event->name));
               }
             }
           }
@@ -260,13 +262,6 @@ public:
 private:
   // Root directory of the file watcher
   std::filesystem::path path;
-  // Periodicity of the file watcher, i.e., how often it checks to see if files
-  // have changed
-  std::chrono::duration<int, std::milli> period;
-  // Regex of paths to ignore
-  std::regex match_path, ignore_path;
-  // Is a match/ignore regex provided
-  bool match_regex_provided, ignore_regex_provided;
 
   // Callback functions based on file status
   std::map<Event, std::function<void(const std::filesystem::path &)>> callbacks;
@@ -284,7 +279,7 @@ private:
     return in;
   }
 
-  bool is_callback_registered(const Event& event) {
+  bool is_callback_registered(const Event &event) {
     return (callbacks.find(event) != callbacks.end());
   }
 };

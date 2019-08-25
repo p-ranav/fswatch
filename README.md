@@ -8,23 +8,22 @@
 
 ## Quick Start
 
-Simply include file_watcher.hpp and you're good to go.
+Simply include file_watcher.hpp and you're good to go. 
 
 ```cpp
 #include <file_watcher.hpp>
 ```
-
-To start watching files, create a FileWatcher.
+To start watching files, create a FileWatcher and provide a directory to watch.
 
 ```cpp
-auto watcher = FileWatcher("/opt", std::chrono::milliseconds(500));
+auto watcher = FileWatcher("/opt");
 ```
 
-This file watcher will observe /opt every 500 ms.
+This file watcher will observe /opt. 
 
 ## Register callbacks to events
 
-To add callbacks to file-related events, use the `file_watcher.on(...)` method like so:
+To add callbacks to events, use the `file_watcher.on(...)` method like so:
 
 ```cpp
 watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
