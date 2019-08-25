@@ -1,20 +1,14 @@
 #pragma once
-#include <chrono>
 #include <filesystem>
 #include <functional>
 #include <iostream>
-#include <regex>
 #include <string>
-#include <thread>
-#include <unordered_map>
-#include <variant>
+#include <map>
 
 #ifdef __linux__
 #include <errno.h>
 #include <limits.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/inotify.h>
 #include <sys/types.h>
 #include <unistd.h>
