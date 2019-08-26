@@ -34,4 +34,13 @@ watcher.on(fswatch::Event::FILE_CREATED, [](auto &path) {
 });
 ```
 
-fswatch works recursively on the directory being watched, i.e., fswatch is notified of all changes made to subdirectories in the path being watched. Currently, fswatch supports `FILE_CREATED`, `FILE_MODIFIED`, `FILE_ERASED`, `DIR_CREATED`, `DIR_MODIFIED`, and `DIR_ERASED` events.
+fswatch works recursively on the directory being watched, i.e., fswatch is notified of all changes made to subdirectories in the path being watched. The following is a list of events that fswatch can handle:
+
+| Event              | Description                                                |
+|--------------------|------------------------------------------------------------|
+| FILE_CREATED       | File created in watched directory                          |
+| FILE_MODIFIED      | File modified in watched directory (e.g., write, truncate) |
+| FILE_ERASED        | File deleted from watched directory                        |
+| DIR_CREATED        | Directory created in watched directory                     |
+| DIR_MODIFIED       | Directory modified in watched directory                    |
+| DIR_ERASED         | Directory deleted from watched directory                   |
