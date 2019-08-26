@@ -13,7 +13,7 @@ Simply include fswatch.hpp and you're good to go.
 ```cpp
 #include <fswatch.hpp>
 ```
-To start watching files, create a FileWatcher and provide a directory to watch.
+To start watching files, create a FileWatcher and provide a directory to watch. This file watcher will observe `/opt`. 
 
 ```cpp
 auto watcher = fswatch("/opt");
@@ -23,8 +23,6 @@ try {
   std::cout << error.what() << std::endl;
 }
 ```
-
-This file watcher will observe /opt. 
 
 ## Register callbacks to events
 
