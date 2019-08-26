@@ -107,9 +107,8 @@ public:
   FileWatcher(const std::string &directory)
       : path(expand(std::filesystem::path(directory))) {
     if (directory.length() == 0) {
-      path = std::filesystem::current_path();
+      path = expand(std::filesystem::path("."));
     }
-    std::cout << "Watching " << path << std::endl;
   }
 
   void on(const Event &event,

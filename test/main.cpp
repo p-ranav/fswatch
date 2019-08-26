@@ -8,9 +8,8 @@ int main() {
     std::cout << "Directory created: " << path << std::endl;
   });
 
-  watcher.on(FileWatcher::Event::FILE_CREATED, [&](auto &path) {
+  watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
     std::cout << "File created: " << path << std::endl;
-    watcher.stop();
   });
 
   watcher.on(FileWatcher::Event::FILE_MODIFIED, [](auto &path) {
