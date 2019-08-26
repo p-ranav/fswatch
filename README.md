@@ -44,3 +44,8 @@ fswatch works recursively on the directory being watched, i.e., fswatch is notif
 | DIR_CREATED        | Directory created in watched directory                     |
 | DIR_MODIFIED       | Directory modified in watched directory                    |
 | DIR_ERASED         | Directory deleted from watched directory                   |
+
+## Todo
+
+1. Currently, fswatch only works in Linux. Need to suppport Win32 and OSX
+2. Need to support more events, e.g., FILE_ACCESSED, FILE_CLOSED etc.
