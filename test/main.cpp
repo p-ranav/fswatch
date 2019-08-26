@@ -1,22 +1,22 @@
-#include <file_watcher.hpp>
+#include <fswatch.hpp>
 #include <iostream>
 
 int main() {
-  auto watcher = FileWatcher("");
+  auto watcher = fswatch(".");
 
-  watcher.on(FileWatcher::Event::DIR_CREATED, [](auto &path) {
+  watcher.on(fswatch::Event::DIR_CREATED, [](auto &path) {
     std::cout << "Directory created: " << path << std::endl;
   });
 
-  watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
+  watcher.on(fswatch::Event::FILE_CREATED, [](auto &path) {
     std::cout << "File created: " << path << std::endl;
   });
 
-  watcher.on(FileWatcher::Event::FILE_MODIFIED, [](auto &path) {
+  watcher.on(fswatch::Event::FILE_MODIFIED, [](auto &path) {
     std::cout << "File modified: " << path << std::endl;
   });
 
-  watcher.on(FileWatcher::Event::FILE_ERASED, [](auto &path) {
+  watcher.on(fswatch::Event::FILE_ERASED, [](auto &path) {
     std::cout << "File erased: " << path << std::endl;
   });
 

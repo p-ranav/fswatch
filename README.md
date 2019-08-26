@@ -23,11 +23,12 @@ This file watcher will observe /opt.
 
 ## Register callbacks to events
 
-To add callbacks to events, use the `file_watcher.on(...)` method like so:
+To add callbacks to events, use the `watcher.on(...)` method like so:
 
 ```cpp
-watcher.on(FileWatcher::Event::FILE_CREATED, [](auto &path) {
-  std::cout << "Path created: " << path << std::endl;
+watcher.on(fswatch::Event::FILE_CREATED, [](auto &path) {
+  std::cout << "File created: " << path << std::endl;
 });
 ```
-This file watcher supports `FILE_CREATED`, `FILE_MODIFIED`, `FILE_ERASED`, `DIR_CREATED`, `DIR_MODIFIED`, and `DIR_ERASED`.
+
+fswatch works recursively on the directory being watched, i.e., fswatch is notified of all changes made to subdirectories in the path being watched. Currently, fswatch supports `FILE_CREATED`, `FILE_MODIFIED`, `FILE_ERASED`, `DIR_CREATED`, `DIR_MODIFIED`, and `DIR_ERASED` events.

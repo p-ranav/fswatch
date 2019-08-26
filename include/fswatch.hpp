@@ -93,7 +93,7 @@ public:
 };
 #endif
 
-class FileWatcher {
+class fswatch {
 public:
   enum class Event {
     FILE_CREATED,
@@ -104,7 +104,7 @@ public:
     DIR_ERASED
   };
 
-  FileWatcher(const std::string &directory)
+  fswatch(const std::string &directory)
       : path(expand(std::filesystem::path(directory))) {
     if (directory.length() == 0) {
       path = expand(std::filesystem::path("."));
