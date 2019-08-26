@@ -1,4 +1,4 @@
-# file_watcher
+# fswatch
 
 ## Highlights
 
@@ -8,15 +8,15 @@
 
 ## Quick Start
 
-Simply include file_watcher.hpp and you're good to go. 
+Simply include fswatch.hpp and you're good to go. 
 
 ```cpp
-#include <file_watcher.hpp>
+#include <fswatch.hpp>
 ```
 To start watching files, create a FileWatcher and provide a directory to watch.
 
 ```cpp
-auto watcher = FileWatcher("/opt");
+auto watcher = fswatch("/opt");
 ```
 
 This file watcher will observe /opt. 
