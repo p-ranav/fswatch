@@ -33,8 +33,8 @@ try {
 To add callbacks to events, use the `watcher.on(...)` method like so:
 
 ```cpp
-watcher.on(fswatch::Event::FILE_CREATED, [](auto &object) {
-  std::cout << "File created: " << object.path << std::endl;
+watcher.on(fswatch::Event::FILE_CREATED, [](auto &event) {
+  std::cout << "File created: " << event.path << std::endl;
 });
 ```
 
@@ -46,11 +46,11 @@ watcher.on(
     fswatch::Event::FILE_OPENED, 
     fswatch::Event::FILE_CLOSED 
   }, 
-  [](auto &object) {
-    if (object.event == fswatch::Event::FILE_OPENED)
-      std::cout << "File opened: " << object.path << std::endl;
+  [](auto &event) {
+    if (event.type == fswatch::Event::FILE_OPENED)
+      std::cout << "File opened: " << event.path << std::endl;
     else
-      std::cout << "File closed: " << object.path << std::endl;
+      std::cout << "File closed: " << event.path << std::endl;
 });
 ```
 
