@@ -168,7 +168,7 @@ public:
 
     // checking for error
     if (fd < 0) {
-      perror("inotify_init");
+      throw std::runtime_error("inotify_init failed");
     }
 
     // use select watch list for non-blocking inotify read
@@ -193,7 +193,7 @@ public:
       // inotify_init1 above).
       int length = read(fd, buffer, EVENT_BUF_LEN);
       if (length < 0) {
-        perror("read");
+	throw std::runtime_error("failed to read event(s) from inotify fd");
       }
 
       // Loop through event buffer
@@ -201,15 +201,17 @@ public:
         struct inotify_event *event = (struct inotify_event *)&buffer[i];
         // Never actually seen this
         if (event->wd == -1) {
-          printf("Overflow\n");
+	  throw std::runtime_error("inotify IN_Q_OVERFLOW");
         }
         // Never seen this either
         if (event->mask & IN_Q_OVERFLOW) {
-          printf("Overflow\n");
+	  throw std::runtime_error("inotify IN_Q_OVERFLOW");
         }
         if (event->len) {
           if (event->mask & IN_IGNORED) {
-            printf("IN_IGNORED\n");
+	    // Watch was removed explicitly (inotify_rm_watch) or automatically
+	    // (file was deleted, or filesystem was unmounted)
+	    throw std::runtime_error("inotify IN_IGNORED");
           }
           if (event->mask & IN_CREATE) {
             current_dir = watch.get(event->wd);
@@ -267,10 +269,6 @@ public:
     }
 
     // Cleanup
-    printf("cleaning up\n");
-    std::cout << "total dir events = " << total_dir_events
-              << ", total file events = " << total_file_events << std::endl;
-    watch.stats();
     watch.cleanup(fd);
     watch.stats();
     close(fd);
