@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="100" src="https://i.imgur.com/YGfomu0.png" alt="fswatch"/>
+  <img height="80" src="https://i.imgur.com/YGfomu0.png" alt="fswatch"/>
 </p>
 
 ## Highlights
