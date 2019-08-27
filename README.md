@@ -36,16 +36,19 @@ watcher.on(fswatch::Event::FILE_CREATED, [](auto &path) {
 
 fswatch works recursively on the directory being watched, i.e., fswatch is notified of all changes made to subdirectories in the path being watched. The following is a list of events that fswatch can handle:
 
-| Event              | Description                                                |
-|--------------------|------------------------------------------------------------|
-| FILE_CREATED       | File created in watched directory                          |
-| FILE_MODIFIED      | File modified in watched directory (e.g., write, truncate) |
-| FILE_ERASED        | File deleted from watched directory                        |
-| DIR_CREATED        | Directory created in watched directory                     |
-| DIR_MODIFIED       | Directory modified in watched directory                    |
-| DIR_ERASED         | Directory deleted from watched directory                   |
+| Event              | Description                                                   |
+|--------------------|---------------------------------------------------------------|
+| FILE_CREATED       | File created in watched directory                             |
+| FILE_OPENED        | File opened in watched directory                              |
+| FILE_MODIFIED      | File modified in watched directory (e.g., write, truncate)    |
+| FILE_CLOSED        | File closed in watched directory                              |
+| FILE_ERASED        | File deleted from watched directory                           |
+| DIR_CREATED        | Directory created in watched directory                        |
+| DIR_OPENED         | Directory opened in watched directory (e.g., when running ls) |
+| DIR_MODIFIED       | Directory modified in watched directory                       |
+| DIR_CLOSED         | Directory closed in watched directory                         |
+| DIR_ERASED         | Directory deleted from watched directory                      |
 
 ## Todo
 
 1. Currently, fswatch only works in Linux (based on inotify). Need to suppport Win32 and OSX
-2. Need to support more events, e.g.,`FILE_ACCESSED`, `FILE_CLOSED` etc.
