@@ -56,7 +56,7 @@ watcher.on(
 
 The following is a list of events that fswatch can handle:
 
-### File Events:
+### File Events
 
 | Event              | Description                                                   |
 |--------------------|---------------------------------------------------------------|
@@ -66,7 +66,7 @@ The following is a list of events that fswatch can handle:
 | FILE_CLOSED        | File closed in watched directory                              |
 | FILE_ERASED        | File deleted from watched directory                           |
 
-### Directory Events:
+### Directory Events
 
 | Event              | Description                                                   |
 |--------------------|---------------------------------------------------------------|
