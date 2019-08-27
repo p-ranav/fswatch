@@ -108,6 +108,11 @@ public:
     DIR_ERASED
   };
 
+  struct EventInfo {
+    Event event;
+    std::filesystem::path path;
+  };
+
   fswatch(const std::string &directory)
       : path(expand(std::filesystem::path(directory))) {
     if (directory.length() == 0) {
@@ -116,12 +121,12 @@ public:
   }
 
   void on(const Event &event,
-          const std::function<void(const std::filesystem::path &)> &action) {
+          const std::function<void(const EventInfo &)> &action) {
     callbacks[event] = action;
   }
 
   void on(const std::vector<Event> &events,
-          const std::function<void(const std::filesystem::path &)> &action) {
+          const std::function<void(const EventInfo &)> &action) {
     for (auto &event : events) {
       callbacks[event] = action;
     }
@@ -145,6 +150,7 @@ public:
     std::string current_dir, new_dir;
     int total_file_events = 0;
     int total_dir_events = 0;
+    Event current_event;
 
     // Call sig_callback if user hits ctrl-c
     signal(SIGINT, sig_callback);
@@ -212,28 +218,16 @@ public:
               wd = inotify_add_watch(fd, new_dir.c_str(), WATCH_FLAGS);
               watch.insert(event->wd, event->name, wd);
               total_dir_events++;
-              if (is_callback_registered(Event::DIR_CREATED)) {
-                callbacks[Event::DIR_CREATED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::DIR_CREATED, current_dir, event->name);
             } else {
               total_file_events++;
-              if (is_callback_registered(Event::FILE_CREATED)) {
-                callbacks[Event::FILE_CREATED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::FILE_CREATED, current_dir, event->name);
             }
           } else if (event->mask & IN_MODIFY) {
             if (event->mask & IN_ISDIR) {
-              if (is_callback_registered(Event::DIR_MODIFIED)) {
-                callbacks[Event::DIR_MODIFIED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::DIR_MODIFIED, current_dir, event->name);
             } else {
-              if (is_callback_registered(Event::FILE_MODIFIED)) {
-                callbacks[Event::FILE_MODIFIED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::FILE_MODIFIED, current_dir, event->name);
             }
           } else if (event->mask & IN_DELETE) {
             if (event->mask & IN_ISDIR) {
@@ -241,48 +235,30 @@ public:
               new_dir = watch.erase(event->wd, event->name, &wd);
               inotify_rm_watch(fd, wd);
               total_dir_events--;
-              if (is_callback_registered(Event::DIR_ERASED)) {
-                callbacks[Event::DIR_ERASED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::DIR_ERASED, current_dir, event->name);
             } else {
               // File was deleted
               current_dir = watch.get(event->wd);
               total_file_events--;
-              if (is_callback_registered(Event::FILE_ERASED)) {
-                callbacks[Event::FILE_ERASED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::FILE_ERASED, current_dir, event->name);
             }
           } else if (event->mask & IN_OPEN) {
             current_dir = watch.get(event->wd);
             if (event->mask & IN_ISDIR) {
               // Directory was opened
-              if (is_callback_registered(Event::DIR_OPENED)) {
-                callbacks[Event::DIR_OPENED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::DIR_OPENED, current_dir, event->name);
             } else {
               // File was opened
-              if (is_callback_registered(Event::FILE_OPENED)) {
-                callbacks[Event::FILE_OPENED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::FILE_OPENED, current_dir, event->name);
             }
           } else if (event->mask & IN_CLOSE) {
             current_dir = watch.get(event->wd);
             if (event->mask & IN_ISDIR) {
               // Directory was closed
-              if (is_callback_registered(Event::DIR_CLOSED)) {
-                callbacks[Event::DIR_CLOSED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::DIR_CLOSED, current_dir, event->name);
             } else {
               // File was closed
-              if (is_callback_registered(Event::FILE_CLOSED)) {
-                callbacks[Event::FILE_CLOSED](
-                    std::filesystem::path(current_dir + "/" + event->name));
-              }
+              run_callback(Event::FILE_CLOSED, current_dir, event->name);
             }
           }
         }
@@ -307,7 +283,7 @@ private:
   std::filesystem::path path;
 
   // Callback functions based on file status
-  std::map<Event, std::function<void(const std::filesystem::path &)>> callbacks;
+  std::map<Event, std::function<void(const EventInfo &)>> callbacks;
 
   std::filesystem::path expand(std::filesystem::path in) {
     const char *home = getenv("HOME");
@@ -324,5 +300,13 @@ private:
 
   bool is_callback_registered(const Event &event) {
     return (callbacks.find(event) != callbacks.end());
+  }
+
+  void run_callback(const Event &event, const std::string &current_dir,
+                    const std::string &filename) {
+    if (is_callback_registered(event)) {
+      callbacks[event](EventInfo{
+          event, std::filesystem::path(current_dir + "/" + filename)});
+    }
   }
 };
