@@ -20,6 +20,7 @@ To start watching files, create a FileWatcher and provide a directory to watch. 
 
 ```cpp
 auto watcher = fswatch("/opt");
+
 try {
   watcher.start();
 } catch (const std::runtime_error& error) {
