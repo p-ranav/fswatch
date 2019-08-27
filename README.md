@@ -41,7 +41,7 @@ watcher.on(fswatch::Event::FILE_CREATED, [](auto &object) {
 You can register a single callback for multiple events like this:
 
 ```cpp
-watcher.on( { fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED }, [](auto &object) {
+watcher.on({ fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED }, [](auto &object) {
   if (object.event == fswatch::Event::FILE_OPENED)
     std::cout << "File opened: " << object.path << std::endl;
   else
