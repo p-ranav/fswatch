@@ -50,6 +50,14 @@ fswatch works recursively on the directory being watched, i.e., fswatch is notif
 | DIR_CLOSED         | Directory closed in watched directory                         |
 | DIR_ERASED         | Directory deleted from watched directory                      |
 
+`watcher.on(...)` supports registration for multiple events like so:
+
+```cpp
+watcher.on( { fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED }, [](auto &path) {
+  std::cout << "File opened or closed: " << path << std::endl;
+});
+```
+
 ## Todo
 
 1. Currently, fswatch only works in Linux (based on inotify). Need to suppport Win32 and OSX
