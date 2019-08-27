@@ -201,17 +201,17 @@ public:
         struct inotify_event *event = (struct inotify_event *)&buffer[i];
         // Never actually seen this
         if (event->wd == -1) {
-	  throw std::runtime_error("inotify IN_Q_OVERFLOW");
+	  throw std::runtime_error("inotify IN_Q_OVERFLOW - Event queue overflowed");
         }
         // Never seen this either
         if (event->mask & IN_Q_OVERFLOW) {
-	  throw std::runtime_error("inotify IN_Q_OVERFLOW");
+	  throw std::runtime_error("inotify IN_Q_OVERFLOW - Event queue overflowed");
         }
         if (event->len) {
           if (event->mask & IN_IGNORED) {
 	    // Watch was removed explicitly (inotify_rm_watch) or automatically
 	    // (file was deleted, or filesystem was unmounted)
-	    throw std::runtime_error("inotify IN_IGNORED");
+	    throw std::runtime_error("inotify IN_IGNORED - Watch was removed explicitly (inotify_rm_watch) or automatically (file was deleted, or filesystem was unmounted)");
           }
           if (event->mask & IN_CREATE) {
             current_dir = watch.get(event->wd);
