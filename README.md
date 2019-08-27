@@ -42,10 +42,9 @@ You can register a single callback for multiple events like this:
 
 ```cpp
 watcher.on(
-  { 
-    fswatch::Event::FILE_OPENED, 
-    fswatch::Event::FILE_CLOSED 
-  }, 
+  // Vector of events
+  { fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED },
+  // Callback
   [](auto &event) {
     if (event.type == fswatch::Event::FILE_OPENED)
       std::cout << "File opened: " << event.path << std::endl;
