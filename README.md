@@ -54,7 +54,7 @@ watcher.on(
 });
 ```
 
-The following is a list of events that fswatch can handle:
+Here are the list of events that fswatch can handle:
 
 ### File Events
 
