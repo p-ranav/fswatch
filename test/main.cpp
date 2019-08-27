@@ -4,16 +4,16 @@
 int main() {
   auto watcher = fswatch(".");
 
-  watcher.on(fswatch::Event::FILE_CREATED, [](auto &object) {
-    std::cout << "File created: " << object.path << std::endl;
+  watcher.on(fswatch::Event::FILE_CREATED, [](auto &event) {
+    std::cout << "File created: " << event.path << std::endl;
   });
 
-  watcher.on(fswatch::Event::FILE_MODIFIED, [](auto &object) {
-    std::cout << "File modified: " << object.path << std::endl;
+  watcher.on(fswatch::Event::FILE_MODIFIED, [](auto &event) {
+    std::cout << "File modified: " << event.path << std::endl;
   });
 
-  watcher.on(fswatch::Event::FILE_ERASED, [](auto &object) {
-    std::cout << "File erased: " << object.path << std::endl;
+  watcher.on(fswatch::Event::FILE_ERASED, [](auto &event) {
+    std::cout << "File erased: " << event.path << std::endl;
   });
 
   try {

@@ -109,7 +109,7 @@ public:
   };
 
   struct EventInfo {
-    Event event;
+    Event type;
     std::filesystem::path path;
   };
 
