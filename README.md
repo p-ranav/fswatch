@@ -68,4 +68,4 @@ The following is a list of events that fswatch can handle:
 
 ## Todo
 
-1. Currently, fswatch only works in Linux (based on inotify). Need to suppport Win32 and OSX
+1. Currently, fswatch only works in Linux. Need to suppport Win32 and OSX
