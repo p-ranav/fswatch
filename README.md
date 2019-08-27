@@ -52,4 +52,3 @@ fswatch works recursively on the directory being watched, i.e., fswatch is notif
 ## Todo
 
 1. Currently, fswatch only works in Linux (based on inotify). Need to suppport Win32 and OSX
-2. Need to support more events, e.g.,`FILE_ACCESSED`, `FILE_CLOSED` etc.
