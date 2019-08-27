@@ -56,6 +56,8 @@ watcher.on(
 
 The following is a list of events that fswatch can handle:
 
+### File Events:
+
 | Event              | Description                                                   |
 |--------------------|---------------------------------------------------------------|
 | FILE_CREATED       | File created in watched directory                             |
@@ -63,6 +65,11 @@ The following is a list of events that fswatch can handle:
 | FILE_MODIFIED      | File modified in watched directory (e.g., write, truncate)    |
 | FILE_CLOSED        | File closed in watched directory                              |
 | FILE_ERASED        | File deleted from watched directory                           |
+
+### Directory Events:
+
+| Event              | Description                                                   |
+|--------------------|---------------------------------------------------------------|
 | DIR_CREATED        | Directory created in watched directory                        |
 | DIR_OPENED         | Directory opened in watched directory (e.g., when running ls) |
 | DIR_MODIFIED       | Directory modified in watched directory                       |
