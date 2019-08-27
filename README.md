@@ -35,7 +35,17 @@ watcher.on(fswatch::Event::FILE_CREATED, [](auto &path) {
 });
 ```
 
-fswatch works recursively on the directory being watched, i.e., fswatch is notified of all changes made to subdirectories in the path being watched. The following is a list of events that fswatch can handle:
+fswatch works recursively on the directory being watched, i.e., fswatch is notified of all changes made to subdirectories in the path being watched. 
+
+`watcher.on(...)` supports registration for multiple events like so:
+
+```cpp
+watcher.on( { fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED }, [](auto &path) {
+  std::cout << "File opened or closed: " << path << std::endl;
+});
+```
+
+The following is a list of events that fswatch can handle:
 
 | Event              | Description                                                   |
 |--------------------|---------------------------------------------------------------|
@@ -49,14 +59,6 @@ fswatch works recursively on the directory being watched, i.e., fswatch is notif
 | DIR_MODIFIED       | Directory modified in watched directory                       |
 | DIR_CLOSED         | Directory closed in watched directory                         |
 | DIR_ERASED         | Directory deleted from watched directory                      |
-
-`watcher.on(...)` supports registration for multiple events like so:
-
-```cpp
-watcher.on( { fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED }, [](auto &path) {
-  std::cout << "File opened or closed: " << path << std::endl;
-});
-```
 
 ## Todo
 
