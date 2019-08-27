@@ -12,8 +12,8 @@ int main() {
     std::cout << "File modified: " << event.path << std::endl;
   });
 
-  watcher.on(fswatch::Event::FILE_ERASED, [](auto &event) {
-    std::cout << "File erased: " << event.path << std::endl;
+  watcher.on(fswatch::Event::FILE_DELETED, [](auto &event) {
+    std::cout << "File deleted: " << event.path << std::endl;
   });
 
   try {

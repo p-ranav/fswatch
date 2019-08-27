@@ -100,12 +100,12 @@ public:
     FILE_OPENED,
     FILE_MODIFIED,
     FILE_CLOSED,
-    FILE_ERASED,
+    FILE_DELETED,
     DIR_CREATED,
     DIR_OPENED,
     DIR_MODIFIED,
     DIR_CLOSED,
-    DIR_ERASED
+    DIR_DELETED
   };
 
   struct EventInfo {
@@ -192,8 +192,8 @@ public:
       // Read event(s) from non-blocking inotify fd (non-blocking specified in
       // inotify_init1 above).
       int length = read(fd, buffer, EVENT_BUF_LEN);
-      if (length < 0) {
-	throw std::runtime_error("failed to read event(s) from inotify fd");
+      if (run && length < 0) {
+        throw std::runtime_error("failed to read event(s) from inotify fd");
       }
 
       // Loop through event buffer
@@ -201,17 +201,22 @@ public:
         struct inotify_event *event = (struct inotify_event *)&buffer[i];
         // Never actually seen this
         if (event->wd == -1) {
-	  throw std::runtime_error("inotify IN_Q_OVERFLOW - Event queue overflowed");
+          throw std::runtime_error(
+              "inotify IN_Q_OVERFLOW - Event queue overflowed");
         }
         // Never seen this either
         if (event->mask & IN_Q_OVERFLOW) {
-	  throw std::runtime_error("inotify IN_Q_OVERFLOW - Event queue overflowed");
+          throw std::runtime_error(
+              "inotify IN_Q_OVERFLOW - Event queue overflowed");
         }
         if (event->len) {
           if (event->mask & IN_IGNORED) {
-	    // Watch was removed explicitly (inotify_rm_watch) or automatically
-	    // (file was deleted, or filesystem was unmounted)
-	    throw std::runtime_error("inotify IN_IGNORED - Watch was removed explicitly (inotify_rm_watch) or automatically (file was deleted, or filesystem was unmounted)");
+            // Watch was removed explicitly (inotify_rm_watch) or automatically
+            // (file was deleted, or filesystem was unmounted)
+            throw std::runtime_error(
+                "inotify IN_IGNORED - Watch was removed explicitly "
+                "(inotify_rm_watch) or automatically (file was deleted, or "
+                "filesystem was unmounted)");
           }
           if (event->mask & IN_CREATE) {
             current_dir = watch.get(event->wd);
@@ -237,12 +242,12 @@ public:
               new_dir = watch.erase(event->wd, event->name, &wd);
               inotify_rm_watch(fd, wd);
               total_dir_events--;
-              run_callback(Event::DIR_ERASED, current_dir, event->name);
+              run_callback(Event::DIR_DELETED, current_dir, event->name);
             } else {
               // File was deleted
               current_dir = watch.get(event->wd);
               total_file_events--;
-              run_callback(Event::FILE_ERASED, current_dir, event->name);
+              run_callback(Event::FILE_DELETED, current_dir, event->name);
             }
           } else if (event->mask & IN_OPEN) {
             current_dir = watch.get(event->wd);
@@ -270,7 +275,6 @@ public:
 
     // Cleanup
     watch.cleanup(fd);
-    watch.stats();
     close(fd);
     fflush(stdout);
   }
