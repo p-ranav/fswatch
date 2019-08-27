@@ -2,8 +2,8 @@
 #include <filesystem>
 #include <functional>
 #include <iostream>
-#include <string>
 #include <map>
+#include <string>
 
 #ifdef __linux__
 #include <errno.h>
@@ -120,10 +120,15 @@ public:
     callbacks[event] = action;
   }
 
-#ifdef __linux__
-  void stop() {
-    run = false;
+  void on(const std::vector<Event> &events,
+          const std::function<void(const std::filesystem::path &)> &action) {
+    for (auto &event : events) {
+      callbacks[event] = action;
+    }
   }
+
+#ifdef __linux__
+  void stop() { run = false; }
 
   void start() {
     // std::map used to keep track of wd (watch descriptors) and directory names
@@ -249,7 +254,7 @@ public:
                     std::filesystem::path(current_dir + "/" + event->name));
               }
             }
-          }  else if (event->mask & IN_OPEN) {
+          } else if (event->mask & IN_OPEN) {
             current_dir = watch.get(event->wd);
             if (event->mask & IN_ISDIR) {
               // Directory was opened
@@ -264,7 +269,7 @@ public:
                     std::filesystem::path(current_dir + "/" + event->name));
               }
             }
-          }  else if (event->mask & IN_CLOSE) {
+          } else if (event->mask & IN_CLOSE) {
             current_dir = watch.get(event->wd);
             if (event->mask & IN_ISDIR) {
               // Directory was closed

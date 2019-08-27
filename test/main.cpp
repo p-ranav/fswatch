@@ -36,6 +36,10 @@ int main() {
     std::cout << "Directory closed: " << path << std::endl;
   });
 
+  watcher.on({fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED}, [](auto& path) {
+    std::cout << "File opened or closed: " << path << std::endl;
+  });
+
   try {
     watcher.start();
   } catch (std::filesystem::filesystem_error &error) {
