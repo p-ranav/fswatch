@@ -19,7 +19,7 @@
 #define EVENT_BUF_LEN                                                          \
   (MAX_EVENTS * (EVENT_SIZE + LEN_NAME)) /*buffer to store the data of         \
                                             events*/
-#define WATCH_FLAGS (IN_CREATE | IN_MODIFY | IN_DELETE)
+#define WATCH_FLAGS (IN_CREATE | IN_MODIFY | IN_DELETE | IN_OPEN | IN_CLOSE)
 
 // Keep going  while run == true, or, in other words, until user hits ctrl-c
 static bool run = true;
@@ -97,10 +97,14 @@ class fswatch {
 public:
   enum class Event {
     FILE_CREATED,
+    FILE_OPENED,
     FILE_MODIFIED,
+    FILE_CLOSED,
     FILE_ERASED,
     DIR_CREATED,
+    DIR_OPENED,
     DIR_MODIFIED,
+    DIR_CLOSED,
     DIR_ERASED
   };
 
@@ -228,6 +232,7 @@ public:
             }
           } else if (event->mask & IN_DELETE) {
             if (event->mask & IN_ISDIR) {
+              // Directory was deleted
               new_dir = watch.erase(event->wd, event->name, &wd);
               inotify_rm_watch(fd, wd);
               total_dir_events--;
@@ -236,10 +241,41 @@ public:
                     std::filesystem::path(current_dir + "/" + event->name));
               }
             } else {
+              // File was deleted
               current_dir = watch.get(event->wd);
               total_file_events--;
               if (is_callback_registered(Event::FILE_ERASED)) {
                 callbacks[Event::FILE_ERASED](
+                    std::filesystem::path(current_dir + "/" + event->name));
+              }
+            }
+          }  else if (event->mask & IN_OPEN) {
+            current_dir = watch.get(event->wd);
+            if (event->mask & IN_ISDIR) {
+              // Directory was opened
+              if (is_callback_registered(Event::DIR_OPENED)) {
+                callbacks[Event::DIR_OPENED](
+                    std::filesystem::path(current_dir + "/" + event->name));
+              }
+            } else {
+              // File was opened
+              if (is_callback_registered(Event::FILE_OPENED)) {
+                callbacks[Event::FILE_OPENED](
+                    std::filesystem::path(current_dir + "/" + event->name));
+              }
+            }
+          }  else if (event->mask & IN_CLOSE) {
+            current_dir = watch.get(event->wd);
+            if (event->mask & IN_ISDIR) {
+              // Directory was closed
+              if (is_callback_registered(Event::DIR_CLOSED)) {
+                callbacks[Event::DIR_CLOSED](
+                    std::filesystem::path(current_dir + "/" + event->name));
+              }
+            } else {
+              // File was closed
+              if (is_callback_registered(Event::FILE_CLOSED)) {
+                callbacks[Event::FILE_CLOSED](
                     std::filesystem::path(current_dir + "/" + event->name));
               }
             }
