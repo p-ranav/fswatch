@@ -5,6 +5,7 @@
 * Single header file
 * Requires C++17 and `std::filesystem`
 * MIT License
+* Based on [inotify](http://man7.org/linux/man-pages/man7/inotify.7.html) in Linux
 
 ## Quick Start
 
