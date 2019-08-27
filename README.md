@@ -41,8 +41,7 @@ fswatch works recursively on the directory being watched, i.e., fswatch is notif
 
 ```cpp
 watcher.on( { fswatch::Event::FILE_OPENED, fswatch::Event::FILE_CLOSED }, [](auto &object) {
-  auto event = object.event;
-  if (event == fswatch::Event::FILE_OPENED)
+  if (object.event == fswatch::Event::FILE_OPENED)
     std::cout << "File opened: " << event.path << std::endl;
   else
     std::cout << "File closed: " << event.path << std::endl;
