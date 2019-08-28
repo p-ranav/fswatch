@@ -7,7 +7,7 @@
 * Single header file
 * Requires C++17 and `std::filesystem`
 * MIT License
-* Based on [inotify](http://man7.org/linux/man-pages/man7/inotify.7.html) in Linux
+* For now, ONLY works in Linux - based on [inotify](http://man7.org/linux/man-pages/man7/inotify.7.html)
 
 ## Quick Start
 
@@ -76,4 +76,4 @@ Here are the list of events that fswatch can handle:
 
 ## Todo
 
-1. Currently, fswatch only works in Linux. Need to suppport Win32 and OSX
+1. Suppport Win32, FreeBSD, and OSX
