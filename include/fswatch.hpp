@@ -113,11 +113,28 @@ public:
     std::filesystem::path path;
   };
 
-  fswatch(const std::string &directory)
-      : path(expand(std::filesystem::path(directory))) {
-    if (directory.length() == 0) {
-      path = expand(std::filesystem::path("."));
+  fswatch() {}
+
+  fswatch(const std::string &directory) {
+    append_to_path(directory);
+  }
+
+  template <class... T>
+  fswatch(T... paths) {
+    append_to_path(paths...);
+  }
+
+  void append_to_path(const std::string& path) {
+    paths.push_back(expand(std::filesystem::path(path)));
+    if (path.length() == 0) {
+      paths[paths.size() - 1] = expand(std::filesystem::path("."));
     }
+  }
+
+  template <class... T2>
+  void append_to_path(const std::string& head, T2... tail) {
+    append_to_path(head);
+    append_to_path(tail...);
   }
 
   void on(const Event &event,
@@ -175,11 +192,13 @@ public:
     FD_ZERO(&watch_set);
     FD_SET(fd, &watch_set);
 
-    const char *root = path.string().c_str();
-    int wd = inotify_add_watch(fd, root, WATCH_FLAGS);
-
-    // add wd and directory name to Watch map
-    watch.insert(-1, root, wd);
+    int wd;
+    for (auto& path : paths) {
+      const char *root = path.string().c_str();
+      wd = inotify_add_watch(fd, root, WATCH_FLAGS);
+      // add wd and directory name to Watch map
+      watch.insert(-1, root, wd);
+    }
 
     // Continue until run == false. See signal and sig_callback above.
     while (run) {
@@ -282,7 +301,7 @@ public:
 
 private:
   // Root directory of the file watcher
-  std::filesystem::path path;
+  std::vector<std::filesystem::path> paths;
 
   // Callback functions based on file status
   std::map<Event, std::function<void(const EventInfo &)>> callbacks;
