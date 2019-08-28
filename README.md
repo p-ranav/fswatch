@@ -16,7 +16,9 @@ Simply include fswatch.hpp and you're good to go.
 ```cpp
 #include <fswatch.hpp>
 ```
-To start watching files, create a FileWatcher and provide a directory to watch. The `fswatch` constructor takes variadic arguments - Simply provide a list of directories to watch. This file watcher will observe your home directory, `/opt`, `/tmp` and the current working directory. 
+To start watching files, create a FileWatcher and provide a variadic list of directories to watch. 
+
+The constructor takes variadic arguments - Simply provide a list of directories to watch. This file watcher will observe your home directory, `/opt`, `/tmp` and the current working directory. 
 
 ```cpp
 auto watcher = fswatch("~", "/opt", "/tmp", ".");
