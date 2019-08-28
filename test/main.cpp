@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-  auto watcher = fswatch("/home/pranav", "/opt", ".");
+  auto watcher = fswatch("~", "/opt", ".");
 
   watcher.on(fswatch::Event::FILE_CREATED, [](auto &event) {
     std::cout << "File created: " << event.path << std::endl;
