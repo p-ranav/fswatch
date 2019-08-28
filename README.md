@@ -7,7 +7,7 @@
 * Single header file
 * Requires C++17 and `std::filesystem`
 * MIT License
-* Based on [inotify](http://man7.org/linux/man-pages/man7/inotify.7.html) in Linux
+* For now, ONLY works in Linux - based on [inotify](http://man7.org/linux/man-pages/man7/inotify.7.html)
 
 ## Quick Start
 
@@ -16,10 +16,12 @@ Simply include fswatch.hpp and you're good to go.
 ```cpp
 #include <fswatch.hpp>
 ```
-To start watching files, create a FileWatcher and provide a directory to watch. This file watcher will observe `/opt`. 
+To start watching files, create an `fswatch` object and provide a variadic list of directories to watch. 
+
+The constructor takes variadic arguments - Simply provide a list of directories to watch. This watcher will observe your home directory, `/opt`, `/tmp` and the current working directory. 
 
 ```cpp
-auto watcher = fswatch("/opt");
+auto watcher = fswatch("~", "/opt", "/tmp", ".");
 
 try {
   watcher.start();
@@ -74,4 +76,4 @@ Here are the list of events that fswatch can handle:
 
 ## Todo
 
-1. Currently, fswatch only works in Linux. Need to suppport Win32 and OSX
+1. Suppport Win32, FreeBSD, and OSX
