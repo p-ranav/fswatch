@@ -194,7 +194,8 @@ public:
 
     int wd;
     for (auto& path : paths) {
-      const char *root = path.string().c_str();
+      auto path_string = path.string();
+      const char *root = path_string.c_str();
       wd = inotify_add_watch(fd, root, WATCH_FLAGS);
       // add wd and directory name to Watch map
       watch.insert(-1, root, wd);
