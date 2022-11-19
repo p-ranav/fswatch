@@ -24,7 +24,7 @@
 // Keep going  while run == true, or, in other words, until user hits ctrl-c
 static bool run = true;
 
-void sig_callback(int sig) { run = false; }
+void sig_callback([[maybe_unused]] int sig) { run = false; }
 
 // Watch class keeps track of watch descriptors (wd), parent watch descriptors
 // (pd), and names (from event->name). The class provides some helpers for
@@ -167,7 +167,7 @@ public:
     std::string current_dir, new_dir;
     int total_file_events = 0;
     int total_dir_events = 0;
-    Event current_event;
+    [[maybe_unused]] Event current_event;
 
     // Call sig_callback if user hits ctrl-c
     signal(SIGINT, sig_callback);
