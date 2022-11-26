@@ -79,10 +79,9 @@ public:
     return rwatch[elem];
   }
   void cleanup(int fd) {
-    for (std::map<int, wd_elem>::iterator wi = watch.begin(); wi != watch.end();
-         wi++) {
+    for (auto wi = watch.begin(); wi != watch.end();) {
       inotify_rm_watch(fd, wi->first);
-      watch.erase(wi);
+      wi = watch.erase(wi);
     }
     rwatch.clear();
   }
